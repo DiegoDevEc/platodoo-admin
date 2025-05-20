@@ -8,8 +8,7 @@ RUN npm install && npm run build -- --configuration production
 # Production Stage
 FROM nginx:alpine
 COPY ./nginx.conf /etc/nginx/nginx.conf
-COPY --from=build /app/dist/playtodoo-admin/ /usr/share/nginx/html
-
+COPY --from=build /app/dist/playtodoo-admin/browser /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
