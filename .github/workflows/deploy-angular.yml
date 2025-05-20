@@ -1,0 +1,16 @@
+name: Deploy Angular Frontend via Coolify API (Docker Build)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Coolify Deployment
+        run: |
+          curl -X POST "http://31.97.12.29:8000/api/v1/deploy?uuid=nc4kw8ks44gk4kswgoww8gk0&force=false" \
+          -H "Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}"
