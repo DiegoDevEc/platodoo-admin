@@ -66,7 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             {
                 id: 'security',
                 icon: 'heroicons_outline:lock-closed',
-                title: 'Security',
+                title: 'Seguridad',
                 description:
                     'Administra tu seguridad y privacidad',
             }
