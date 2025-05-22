@@ -10,7 +10,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Trigger Coolify Deployment
+      - name: Verificar repositorio
+        uses: actions/checkout@v3
+
+      - name: Verificar token de Coolify (oculto)
         run: |
-          curl -X POST "http://31.97.12.29:8000/api/v1/deploy?uuid=nc4kw8ks44gk4kswgoww8gk0&force=false" \
-          -H "Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}"
+          if [ -z "${{ secrets.COOLIFY_DEPLOY_TOKEN }}" ]; then
+            echo "❌ Token no definido en los secrets del repositorio (COOLIFY_DEPLOY_TOKEN)"
+            exit 1
+          else
+            echo "✅ Token definido correctamente"
+          fi
+
+      - name: Hacer despliegue vía Coolify
+        run: |
+          echo "⏳ Ejecutando curl a Coolify..."
+
+          RESPONSE=$(curl -s -w "%{http_code}" -o coolify-response.log \
+            -X POST "http://31.97.12.29:8000/api/v1/deploy?uuid=nc4kw8ks44gk4kswgoww8gk0&force=false" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}" )
+
+          echo "📄 Respuesta HTTP: $RESPONSE"
+          echo "📦 Contenido de respuesta:"
+          cat coolify-response.log
+
+          if [ "$RESPONSE" -ne 200 ] && [ "$RESPONSE" -ne 202 ]; then
+            echo "❌ Error: Coolify devolvió código HTTP $RESPONSE"
+            exit 1
+          fi
+
+          echo "✅ Despliegue disparado correctamente desde GitHub Actions."

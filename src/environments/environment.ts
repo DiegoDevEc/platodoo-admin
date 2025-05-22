@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://api.playtodoo.com' // URL del backend
+  apiUrl: 'http://localhost:8081' ,
+  platform: 'BACKOFFICE' // URL del backend
 };

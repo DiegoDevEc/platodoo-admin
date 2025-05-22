@@ -29,10 +29,7 @@ export class UserService {
      * @param value
      */
     set user(value: User) {
-        console.log('User set *****:', value);
         if (value) {
-            console.log('User set 02 *****:', value);
-
             this._user.next(value);
             localStorage.setItem('user', JSON.stringify(value));
         } else {

@@ -32,8 +32,13 @@ export class AuthService {
         if (this._authenticated) {
             return throwError(() => new Error('User is already logged in.'));
         }
+        // Concatenar plataforma al email como "email|PLATFORM"
+        const payload = {
+            email: `${credentials.email}|${environment.platform}`,
+            password: credentials.password
+        };
 
-        return this._httpClient.post(`${this._apiUrl}/api/auth/sign-in`, credentials).pipe(
+        return this._httpClient.post(`${this._apiUrl}/api/auth/sign-in`, payload).pipe(
             switchMap((response: any) => {
                 this.accessToken = response.accessToken;
                 this._authenticated = true;
@@ -44,7 +49,7 @@ export class AuthService {
     }
 
     signInUsingToken(): Observable<any> {
-       return this._httpClient.post(`${this._apiUrl}/api/auth/sign-in-with-token`, { accessToken: this.accessToken }).pipe(
+        return this._httpClient.post(`${this._apiUrl}/api/auth/sign-in-with-token`, { accessToken: this.accessToken }).pipe(
             catchError(() => of(false)),
             switchMap((response: any) => {
                 if (response.accessToken) {
