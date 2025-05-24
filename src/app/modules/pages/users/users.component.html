@@ -1,0 +1,49 @@
+<div class="flex w-full flex-auto flex-col">
+
+    <div class="mx-auto flex w-full max-w-screen-xl flex-wrap p-6 md:p-8">
+        <!-- Title and action buttons -->
+        <div class="flex w-full items-center justify-between">
+            <div>
+                <div class="text-3xl font-semibold leading-8 tracking-tight">
+                    Panel de usuarios
+                </div>
+                <div class="text-secondary font-medium tracking-tight">
+                    Gestiona cuentas, revisa estados y analiza actividad en la plataforma
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 w-full">
+            @if (!loading) {
+            @if (dataTable.length > 0) {
+            <app-dynamic-table [title]="'Usuarios'" [columns]="columns" [headers]="headers" [data]="dataTable"
+                [totalItems]="totalItems" [pageSize]="pageSize" [pageIndex]="pageIndex" [showActions]="true"
+                (edit)="editar($event)" (delete)="delete($event)" (filter)="filtrar($event)" (page)="paginar($event)"
+                (sort)="ordenar($event)">
+
+                <ng-template let-row let-column="column" #cellTemplate>
+                    @if (column === 'status') {
+                    <div class="inline-block rounded-md py-0.5 px-2.5 text-sm text-white shadow-sm transition-all"
+                        [ngClass]="row.status ? 'bg-blue-800' : 'bg-red-600'">
+                        {{ row.status ? 'Activo' : 'Inactivo' }}
+                    </div>
+                    }
+                </ng-template>
+            </app-dynamic-table>
+            } @else {
+            <div class="flex justify-center items-center h-48 text-center text-lg text-gray-500">
+                No hay registros para mostrar.
+            </div>
+            }
+
+            } @else{
+
+            <app-full-screen-loading *ngIf="loading" message="Cargando...">
+            </app-full-screen-loading>
+
+
+            }
+        </div>
+
+    </div>
+</div>

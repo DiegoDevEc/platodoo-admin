@@ -1,0 +1,26 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(30, 41, 59, 0.6); // 🔹 fondo gris oscuro translúcido
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px); // (opcional) suaviza el fondo
+}
+
+.content {
+  text-align: center;
+}
+
+.spinner {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+}
+
+.message {
+  font-size: 1.125rem;
+  color: #0253B3;
+  font-weight: 600;
+}

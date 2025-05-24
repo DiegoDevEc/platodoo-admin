@@ -1,12 +1,13 @@
-import { DecimalPipe } from '@angular/common';
+import { user } from './../../../mock-api/common/user/data';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import {
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     OnDestroy,
     OnInit,
     ViewEncapsulation,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -16,15 +17,23 @@ import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { Subject, takeUntil } from 'rxjs';
 import { AnalyticsService } from './analytics.service';
 import { analytics } from 'app/mock-api/dashboards/analytics/data';
+import { DynamicTableComponent } from 'app/layout/common/dynamic-table/dynamic-table.component';
+import { MatChipsModule } from '@angular/material/chips';
+import { UserService } from 'app/core/services/api/user.service';
+import { User } from 'app/core/user/user.types';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FullScreenLoadingComponent } from 'app/layout/common/full-screen-loading/full-screen-loading.component';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 @Component({
     selector: 'analytics',
     templateUrl: './analytics.component.html',
     encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        MatButtonModule,
+        CommonModule,
         MatIconModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
         MatMenuModule,
         MatButtonToggleModule,
         NgApexchartsModule,
@@ -46,13 +55,32 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
+    // Datos Tabla
+    loading = true;
+    dataTable: any[] = [];
+    columns = ['username', 'email', 'phone', 'firstName', 'lastName'];
+    totalItems = 0;
+    pageIndex = 0;
+    pageSize = 0;
+
+    // Encabezados legibles
+    headers = {
+        username: 'Usuario',
+        email: 'Correo',
+        phone: 'Teléfono',
+        firstName: 'Nombre',
+        lastName: 'Apellido'
+    };
+
     /**
      * Constructor
      */
     constructor(
         private _analyticsService: AnalyticsService,
-        private _router: Router
-    ) {}
+        private _router: Router,
+        private _fuseConfirmationService: FuseConfirmationService,
+        private _apiServiceUser: UserService
+    ) { }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -62,6 +90,8 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+
+        this.getUsers();
 
         // Get the data
         this._analyticsService.data$
@@ -665,5 +695,71 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
                                                 </div>`,
             },
         };
+    }
+
+    getUsers(): void {
+        this.loading = true;
+
+
+
+        this._apiServiceUser.getUsers(0, 5, 'username', '')
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe({
+                next: (response) => {
+                    this.dataTable = [...response.content];
+
+                    this.totalItems = response.totalElements;
+                    this.pageIndex = response.page;
+                    this.pageSize = response.size;
+                    this.loading = false;
+
+                },
+                error: () => {
+                    this.dataTable = [];
+                    this.loading = false;
+                }
+            });
+    }
+
+
+    // Acciones
+    editar(row: any): void {
+        console.log('Editar:', row);
+    }
+
+    delete(row: any): void {
+        // Open the confirmation dialog
+        const confirmation = this._fuseConfirmationService.open({
+            title: 'Eliminar Usuario',
+            message:
+                '¿Seguro que quieres eliminar este registro?',
+            actions: {
+                confirm: {
+                    label: 'Eliminar',
+                },
+            },
+        });
+
+        // Subscribe to the confirmation dialog closed action
+        confirmation.afterClosed().subscribe((result) => {
+            // If the confirm button pressed...
+            if (result === 'confirmed') {
+               console.log('Eliminar:', row);
+                // Call the delete method from the service
+                console.log(row.username);
+            }
+        });
+    }
+
+    filtrar(valor: string): void {
+        console.log('Filtro:', valor);
+    }
+
+    paginar(event: any): void {
+        console.log('Paginación:', event);
+    }
+
+    ordenar(event: any): void {
+        console.log('Ordenamiento:', event);
     }
 }

@@ -3,11 +3,18 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const defaultNavigation: FuseNavigationItem[] = [
     {
-        id   : 'dashboard',
+        id: 'dashboard',
         title: 'Dashboard',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/dashboard'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/dashboard'
+    },
+    {
+        id: 'pages.users',
+        title: 'Usuarios',
+        type: 'basic',
+        icon: 'heroicons_outline:users',
+        link: '/pages/users',
     },
     {
         id: 'divider-2',
@@ -15,8 +22,8 @@ export const defaultNavigation: FuseNavigationItem[] = [
     },
     {
         id: 'pages',
-        title: 'Pages',
-        subtitle: 'Custom made page designs',
+        title: 'Páginas',
+        subtitle: 'Configuraciones del sistema',
         type: 'group',
         icon: 'heroicons_outline:document',
         children: [
@@ -39,11 +46,18 @@ export const defaultNavigation: FuseNavigationItem[] = [
 ];
 export const compactNavigation: FuseNavigationItem[] = [
     {
-        id   : 'dashboard',
+        id: 'dashboard',
         title: 'Dashboard',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/dashboard'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/dashboard'
+    },
+    {
+        id: 'pages.users',
+        title: 'Usuarios',
+        type: 'basic',
+        icon: 'heroicons_outline:users',
+        link: '/pages/users',
     },
     {
         id: 'divider-2',
@@ -51,8 +65,8 @@ export const compactNavigation: FuseNavigationItem[] = [
     },
     {
         id: 'pages',
-        title: 'Pages',
-        subtitle: 'Custom made page designs',
+        title: 'Páginas',
+        subtitle: 'Configuraciones del sistema',
         type: 'group',
         icon: 'heroicons_outline:document',
         children: [
@@ -75,11 +89,18 @@ export const compactNavigation: FuseNavigationItem[] = [
 ];
 export const futuristicNavigation: FuseNavigationItem[] = [
     {
-        id   : 'dashboard',
+        id: 'dashboard',
         title: 'Dashboard',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/dashboard'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/dashboard'
+    },
+    {
+        id: 'pages.users',
+        title: 'Usuarios',
+        type: 'basic',
+        icon: 'heroicons_outline:users',
+        link: '/pages/users',
     },
     {
         id: 'divider-2',
@@ -87,8 +108,8 @@ export const futuristicNavigation: FuseNavigationItem[] = [
     },
     {
         id: 'pages',
-        title: 'Pages',
-        subtitle: 'Custom made page designs',
+        title: 'Páginas',
+        subtitle: 'Configuraciones del sistema',
         type: 'group',
         icon: 'heroicons_outline:document',
         children: [
@@ -111,11 +132,18 @@ export const futuristicNavigation: FuseNavigationItem[] = [
 ];
 export const horizontalNavigation: FuseNavigationItem[] = [
     {
-        id   : 'dashboard',
+        id: 'dashboard',
         title: 'Dashboard',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/dashboard'
+        type: 'basic',
+        icon: 'heroicons_outline:chart-pie',
+        link: '/dashboard'
+    },
+    {
+        id: 'pages.users',
+        title: 'Usuarios',
+        type: 'basic',
+        icon: 'heroicons_outline:users',
+        link: '/pages/users',
     },
     {
         id: 'divider-2',
@@ -123,8 +151,8 @@ export const horizontalNavigation: FuseNavigationItem[] = [
     },
     {
         id: 'pages',
-        title: 'Pages',
-        subtitle: 'Custom made page designs',
+        title: 'Páginas',
+        subtitle: 'Configuraciones del sistema',
         type: 'group',
         icon: 'heroicons_outline:document',
         children: [

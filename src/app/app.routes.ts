@@ -76,6 +76,7 @@ export const appRoutes: Route[] = [
         children: [
             {path: 'dashboard', loadChildren: () => import('app/modules/admin/analytics/analytics.routes')},
             {path: 'pages/settings', loadChildren: () => import('app/modules/pages/settings/settings.routes')},
+            {path: 'pages/users', loadChildren: () => import('app/modules/pages/users/users.routes')},
         ]
     }
 ];

@@ -4,15 +4,28 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { User } from 'app/core/user/user.types';
+import { PageResult } from '../interface/page-result';
 
 @Injectable({
     providedIn: 'root'
 })
 export class UserService {
+
     private apiUrl = `${environment.apiUrl}/api`;
     private platform = `${environment.platform}`;
 
     constructor(private http: HttpClient) { }
+
+    getUsers(page: number, size: number, sort: string, search: string): Observable<PageResult<User>> {
+        return this.http.get<PageResult<User>>(`${this.apiUrl}/users`, {
+            params: {
+                page: page.toString(),
+                size: size.toString(),
+                sort,
+                search
+            }
+        });
+    }
 
     updateUser(userId: string, user: User): Observable<User> {
         return this.http.put<User>(`${this.apiUrl}/users/${userId}`, user);
