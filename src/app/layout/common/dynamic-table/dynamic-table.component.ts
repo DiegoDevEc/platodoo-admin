@@ -53,8 +53,8 @@ export class DynamicTableComponent {
 
     ngOnInit(): void {
         this.displayedColumns = [...this.context.columns];
-        if (this.context.onUpdate || this.context.onDelete) {
             this.displayedColumns.push('actions');
+        if (this.context.onUpdate || this.context.onDelete) {
         }
     }
 
@@ -85,7 +85,26 @@ export class DynamicTableComponent {
     }
 
     onEdit(row: any): void {
-        this.context.onUpdate(row);
+        const idRow = row.id;
+        const dialogRef = this.dialog.open(DynamicAddDialogComponent, {
+            width: '600px',
+            maxWidth: '95vw',
+            height: 'auto',
+            maxHeight: '95vh',
+            autoFocus: false,
+            panelClass: 'custom-dialog-container',
+            data: {
+                title: `Editar ${this.context.title}`,
+                fields: this.context.getFormFields(row)
+            }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+            result.id = idRow;
+            if (result) {
+                this.context.onUpdate(result);
+                this.context.getDataComponent();
+            }
+        });
     }
 
     onDelete(row: any): void {
@@ -97,8 +116,6 @@ export class DynamicTableComponent {
     }
 
     toggleSort(field: string): void {
-        console.log('Toggling sort for field:', field);
-
         if (this.context.sortField === field) {
             this.context.sortDirection = this.context.sortDirection === 'asc' ? 'desc' : 'asc';
         } else {

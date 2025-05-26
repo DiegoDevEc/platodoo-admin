@@ -7,4 +7,5 @@ export interface DynamicField {
     options?: string[]; // solo para 'select'
     placeholder?: string;
     validators?: any[];
+    asyncValidators?: any[];
 }

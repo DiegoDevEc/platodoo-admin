@@ -3,6 +3,7 @@ import { DynamicField } from "./dynamic-add-dialog/dynamic-field";
 export interface DynamicTableContext<T = any> {
   title: string;
   columns: string[];
+  displayedColumns: string[];
   headers: Record<string, string>;
   dataTable: T[];
   totalItems: number;

@@ -37,8 +37,17 @@
                 <mat-label>{{ field.label }}</mat-label>
                 <input matInput [type]="field.type" [formControlName]="field.name"
                     [placeholder]="field.placeholder || ''" />
-                <mat-error *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
+                <mat-error *ngIf="form.get(field.name)?.hasError('required') && form.get(field.name)?.touched">
                     Campo obligatorio
+                </mat-error>
+                <mat-error *ngIf="form.get(field.name)?.hasError('email') && form.get(field.name)?.touched">
+                    Correo inválido
+                </mat-error>
+                <mat-error *ngIf="form.get(field.name)?.hasError('emailTaken') && form.get(field.name)?.touched">
+                    Este correo ya está registrado
+                </mat-error>
+                <mat-error *ngIf="form.get(field.name)?.hasError('phoneTaken') && form.get(field.name)?.touched">
+                    Este teléfono ya está registrado
                 </mat-error>
             </mat-form-field>
             }

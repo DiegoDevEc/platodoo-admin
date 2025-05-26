@@ -41,27 +41,35 @@ export class DynamicAddDialogComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) public data: { title: string; fields: DynamicField[] }
     ) {}
 
-    ngOnInit(): void {
-        console.log('DynamicAddDialogComponent initialized with data:', this.data);
+ngOnInit(): void {
 
-        const group: { [key: string]: FormControl } = {};
+    const group: { [key: string]: FormControl } = {};
 
-        this.data.fields.forEach(field => {
-            const validators = [];
+    this.data.fields.forEach(field => {
+        const syncValidators = [];
+        const asyncValidators = [];
 
-            if (field.required) {
-                validators.push(Validators.required);
-            }
+        if (field.required) {
+            syncValidators.push(Validators.required);
+        }
 
-            if (field.validators) {
-                validators.push(...field.validators);
-            }
+        if (field.validators) {
+            syncValidators.push(...field.validators);
+        }
 
-            group[field.name] = new FormControl(field.value || '', validators);
-        });
+        if (field.asyncValidators) {
+            asyncValidators.push(...field.asyncValidators);
+        }
 
-        this.form = new FormGroup(group);
-    }
+        group[field.name] = new FormControl(
+            field.value || '',
+            syncValidators,
+            asyncValidators
+        );
+    });
+
+    this.form = new FormGroup(group);
+}
 
     submit(): void {
         if (this.form.valid) {

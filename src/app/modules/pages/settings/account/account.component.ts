@@ -6,13 +6,10 @@ import {
     ViewEncapsulation,
 } from '@angular/core';
 import {
-    AbstractControl,
-    AsyncValidatorFn,
     FormsModule,
     ReactiveFormsModule,
     UntypedFormBuilder,
     UntypedFormGroup,
-    ValidationErrors,
     Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,7 +21,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { UserService } from 'app/core/services/api/user.service';
 import { LocalStorageService } from 'app/core/services/local-storage.service';
 import { User } from 'app/core/user/user.types';
-import { Observable, timer, switchMap, map, of } from 'rxjs';
+import { emailValidator, phoneValidator } from 'app/core/validators/user-validators';
 
 @Component({
     selector: 'settings-account',
@@ -53,16 +50,28 @@ export class SettingsAccountComponent implements OnInit {
     /**
      * Constructor
      */
-    constructor(private _formBuilder: UntypedFormBuilder, private _userService: UserService,
-        private _localStorageService: LocalStorageService) {
-        this.accountForm = this._formBuilder.group({
-            firstName: [''],
-            lastName: [''],
-            username: [''],
-            email: ['', Validators.email, [this.emailValidator()]],
-            phone: ['', Validators.required, [this.phoneValidator()]]
-        });
-    }
+constructor(
+    private _formBuilder: UntypedFormBuilder,
+    private _userService: UserService,
+    private _localStorageService: LocalStorageService
+) {
+    this.userId = this._localStorageService.getItem<User>('user')?.id;
+    this.accountForm = this._formBuilder.group({
+        firstName: [''],
+        lastName: [''],
+        username: [''],
+        email: [
+            '',
+            [Validators.email],
+            [emailValidator(this._userService, this.userId, this.originalEmail)]
+        ],
+        phone: [
+            '',
+            [Validators.required],
+            [phoneValidator(this._userService, this.userId, this.originalPhone)]
+        ]
+    });
+}
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -71,21 +80,23 @@ export class SettingsAccountComponent implements OnInit {
     /**
      * On init
      */
-    ngOnInit(): void {
-
-        this._userService.getUserById(this.userId).subscribe((user) => {
-            this.accountForm.patchValue({
-                firstName: user.firstName,
-                lastName: user.lastName,
-                username: user.username,
-                email: user.email,
-                phone: user.phone
-            });
-            this.accountForm.updateValueAndValidity();
-        }, (error) => {
-            console.error('Error fetching user data:', error);
+ngOnInit(): void {
+    this._userService.getUserById(this.userId).subscribe((user) => {
+        this.originalEmail = user.email;
+        this.originalPhone = user.phone;
+        this.accountForm.patchValue({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username,
+            email: user.email,
+            phone: user.phone
         });
-    }
+        this.accountForm.get('email')?.updateValueAndValidity();
+        this.accountForm.get('phone')?.updateValueAndValidity();
+    }, (error) => {
+        console.error('Error fetching user data:', error);
+    });
+}
 
     updateAccount(): void {
         if (this.accountForm.valid) {
@@ -110,8 +121,7 @@ export class SettingsAccountComponent implements OnInit {
         }
     }
 
-    emailValidator(): AsyncValidatorFn {
-
+ /*   emailValidator(): AsyncValidatorFn {
         return (control: AbstractControl): Observable<ValidationErrors | null> => {
             // No validar si no cambió
             if (!control.dirty || control.value === this.originalEmail) {
@@ -128,10 +138,7 @@ export class SettingsAccountComponent implements OnInit {
         };
     }
 
-
-
     phoneValidator(): AsyncValidatorFn {
-
         return (control: AbstractControl): Observable<ValidationErrors | null> => {
             // No validar si no cambió
             if (!control.dirty || control.value === this.originalPhone) {
@@ -146,6 +153,6 @@ export class SettingsAccountComponent implements OnInit {
                 )
             );
         };
-    }
+    }*/
 
 }

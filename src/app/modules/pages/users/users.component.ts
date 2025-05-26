@@ -15,9 +15,11 @@ import { User } from '../../../core/user/user.types';
 import { takeUntil } from 'rxjs/operators';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar'; // Agrega este import
 import { DynamicTableContext } from 'app/layout/common/dynamic-table/dynamic-table-context';
 import { DynamicField } from 'app/layout/common/dynamic-table/dynamic-add-dialog/dynamic-field';
+import { emailValidator, phoneValidator } from 'app/core/validators/user-validators';
+import { Validators } from '@angular/forms';
 
 @Component({
     selector: 'app-users',
@@ -41,7 +43,8 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
 
 
     title: string = 'Usuarios';
-    columns = ['username', 'firstName', 'lastName', 'email', 'phone'];
+    columns = ['id', 'username', 'firstName', 'lastName', 'email', 'phone'];
+    displayedColumns = ['username', 'firstName', 'lastName', 'email', 'phone', 'actions'];
 
     // Encabezados legibles
     headers = {
@@ -65,16 +68,36 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
      */
     constructor(
         private _fuseConfirmationService: FuseConfirmationService,
-        private _apiServiceUser: UserService
+        private _apiServiceUser: UserService,
+        private _snackBar: MatSnackBar
     ) { }
 
     getFormFields(row?: User): DynamicField[] {
         return [
-            { name: 'username', label: 'Usuario', type: 'text', required: true, value: row?.username },
-            { name: 'email', label: 'Correo', type: 'email', required: true, value: row?.email },
             { name: 'firstName', label: 'Nombre', type: 'text', value: row?.firstName },
             { name: 'lastName', label: 'Apellido', type: 'text', value: row?.lastName },
-            { name: 'phone', label: 'Teléfono', type: 'text', value: row?.phone }
+            { name: 'username', label: 'Usuario', type: 'text', required: true, value: row?.username },
+            {
+                name: 'email',
+                label: 'Correo',
+                type: 'email',
+                required: true,
+                value: row?.email,
+                validators: [Validators.email],
+                asyncValidators: [
+                    emailValidator(this._apiServiceUser, row?.id ?? '', row?.email)
+                ]
+            },
+            {
+                name: 'phone',
+                label: 'Teléfono',
+                type: 'text',
+                value: row?.phone,
+                required: true,
+                asyncValidators: [
+                    phoneValidator(this._apiServiceUser, row?.id ?? '', row?.phone)
+                ]
+            }
         ];
     }
 
@@ -89,46 +112,55 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: (response: PageResult<User>) => {
-                    console.log(response.content);
-
                     this.dataTable = [...response.content];
                     this.totalItems = response.totalElements;
                     this.pageIndex = response.page;
                     this.pageSize = response.size;
                     this.loading = false;
+                    console.log('Usuarios cargados:', this.dataTable);
+
                 },
                 error: () => {
                     this.dataTable = [];
                     this.loading = false;
+                    this._snackBar.open('Error al cargar usuarios', 'Cerrar', { duration: 3000 });
                 }
             });
     }
 
     // Acciones
-    onUpdate(row: User): void {
-        console.log('Editar:', row);
+    onUpdate(user: User): void {
+        console.log('Actualizar usuario:', user.id);
+        this._apiServiceUser.updateUser(user.id, user).subscribe({
+            next: () => {
+                this._snackBar.open('Usuario actualizado', 'Cerrar', { duration: 2000 });
+                this.getDataComponent();
+            },
+            error: () => {
+                this._snackBar.open('Error al actualizar usuario', 'Cerrar', { duration: 3000 });
+            }
+        });
     }
 
     onDelete(row: User): void {
-        // Open the confirmation dialog
         const confirmation = this._fuseConfirmationService.open({
             title: 'Eliminar Usuario',
-            message:
-                '¿Seguro que quieres eliminar este registro?',
-            actions: {
-                confirm: {
-                    label: 'Eliminar',
-                },
-            },
+            message: '¿Seguro que quieres eliminar este registro?',
+            actions: { confirm: { label: 'Eliminar' } },
         });
 
-        // Subscribe to the confirmation dialog closed action
         confirmation.afterClosed().subscribe((result) => {
-            // If the confirm button pressed...
             if (result === 'confirmed') {
-                console.log('Eliminar:', row);
-                // Call the delete method from the service
-                console.log(row.username);
+                // Suponiendo que tienes un método deleteUser en tu servicio
+                this._apiServiceUser.deleteUser(row.id).subscribe({
+                    next: () => {
+                        this._snackBar.open('Usuario eliminado', 'Cerrar', { duration: 2000 });
+                        this.getDataComponent();
+                    },
+                    error: () => {
+                        this._snackBar.open('Error al eliminar usuario', 'Cerrar', { duration: 3000 });
+                    }
+                });
             }
         });
     }
