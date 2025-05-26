@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +16,8 @@ import { takeUntil } from 'rxjs/operators';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { DynamicTableContext } from 'app/layout/common/dynamic-table/dynamic-table-context';
+import { DynamicField } from 'app/layout/common/dynamic-table/dynamic-add-dialog/dynamic-field';
 
 @Component({
     selector: 'app-users',
@@ -33,26 +35,31 @@ import { MatDialog } from '@angular/material/dialog';
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss'
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<User> {
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     // Datos Tabla
     loading = true;
     dataTable: any[] = [];
-    columns = ['username', 'email', 'phone', 'firstName', 'lastName'];
+    columns = ['username', 'firstName', 'lastName', 'email', 'phone'];
     totalItems = 0;
     pageIndex = 0;
-    pageSize = 0;
+    pageSize = 5;
+    sortField = 'username';
+    sortDirection = 'asc';
 
     // Encabezados legibles
     headers = {
         username: 'Usuario',
-        email: 'Correo',
-        phone: 'Teléfono',
         firstName: 'Nombre',
-        lastName: 'Apellido'
+        lastName: 'Apellido',
+        email: 'Correo',
+        phone: 'Teléfono'
     };
+
+
+    title: string = 'Usuarios';
 
     /**
      * Constructor
@@ -61,14 +68,25 @@ export class UsersComponent implements OnInit {
         private _fuseConfirmationService: FuseConfirmationService,
         private _apiServiceUser: UserService
     ) { }
-    ngOnInit(): void {
-        this.getUsers();
+
+    getFormFields(row?: User): DynamicField[] {
+        return [
+            { name: 'username', label: 'Usuario', type: 'text', required: true, value: row?.username },
+            { name: 'email', label: 'Correo', type: 'email', required: true, value: row?.email },
+            { name: 'firstName', label: 'Nombre', type: 'text', value: row?.firstName },
+            { name: 'lastName', label: 'Apellido', type: 'text', value: row?.lastName },
+            { name: 'phone', label: 'Teléfono', type: 'text', value: row?.phone }
+        ];
     }
 
-    getUsers(): void {
+    ngOnInit(): void {
+        this.getDataComponent();
+    }
+
+    getDataComponent(): void {
         this.loading = true;
 
-        this._apiServiceUser.getUsers(0, 5, 'username', '')
+        this._apiServiceUser.getUsers(this.pageIndex, this.pageSize, this.sortField, this.sortDirection)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: (response: PageResult<User>) => {
@@ -85,13 +103,12 @@ export class UsersComponent implements OnInit {
             });
     }
 
-
     // Acciones
-    editar(row: any): void {
+    onUpdate(row: User): void {
         console.log('Editar:', row);
     }
 
-    delete(row: any): void {
+    onDelete(row: User): void {
         // Open the confirmation dialog
         const confirmation = this._fuseConfirmationService.open({
             title: 'Eliminar Usuario',
@@ -115,16 +132,25 @@ export class UsersComponent implements OnInit {
         });
     }
 
-    filtrar(valor: string): void {
+    filterEvent(valor: string): void {
         console.log('Filtro:', valor);
     }
 
-    paginar(event: any): void {
-        console.log('Paginación:', event);
+    pageEvent(event: any): void {
+        this.pageIndex = event.pageIndex;
+        this.pageSize = event.pageSize;
+        this.getDataComponent();
     }
 
-    ordenar(event: any): void {
-        console.log('Ordenamiento:', event);
+    sortListEvent(event: any): void {
+        const sortField = event.active;
+        const sortDirection = event.direction;
+        this.getDataComponent();
+    }
+
+    ngOnDestroy(): void {
+        this._unsubscribeAll.next(null);
+        this._unsubscribeAll.complete();
     }
 
 }

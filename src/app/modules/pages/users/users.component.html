@@ -16,10 +16,12 @@
         <div class="mt-8 w-full">
             @if (!loading) {
             @if (dataTable.length > 0) {
-            <app-dynamic-table [title]="'Usuarios'" [columns]="columns" [headers]="headers" [data]="dataTable"
+                <app-dynamic-table [context]="this"></app-dynamic-table>
+
+            <!--app-dynamic-table [title]="'Usuarios'" [columns]="columns" [headers]="headers" [data]="dataTable"
                 [totalItems]="totalItems" [pageSize]="pageSize" [pageIndex]="pageIndex" [showActions]="true"
-                (edit)="editar($event)" (delete)="delete($event)" (filter)="filtrar($event)" (page)="paginar($event)"
-                (sort)="ordenar($event)">
+                (edit)="onUpdate($event)" (delete)="onDelete($event)" (filter)="filterEvent($event)" (page)="pageEvent($event)"
+                (sort)="sortListEvent($event)">
 
                 <ng-template let-row let-column="column" #cellTemplate>
                     @if (column === 'status') {
@@ -29,7 +31,7 @@
                     </div>
                     }
                 </ng-template>
-            </app-dynamic-table>
+            </app-dynamic-table-->
             } @else {
             <div class="flex justify-center items-center h-48 text-center text-lg text-gray-500">
                 No hay registros para mostrar.
