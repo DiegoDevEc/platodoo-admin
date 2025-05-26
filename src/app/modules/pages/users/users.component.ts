@@ -39,15 +39,9 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-    // Datos Tabla
-    loading = true;
-    dataTable: any[] = [];
+
+    title: string = 'Usuarios';
     columns = ['username', 'firstName', 'lastName', 'email', 'phone'];
-    totalItems = 0;
-    pageIndex = 0;
-    pageSize = 5;
-    sortField = 'username';
-    sortDirection = 'asc';
 
     // Encabezados legibles
     headers = {
@@ -58,8 +52,13 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
         phone: 'Teléfono'
     };
 
-
-    title: string = 'Usuarios';
+    dataTable: any[] = [];
+    totalItems = 0;
+    pageIndex = 0;
+    pageSize = 5;
+    sortField = 'username';
+    sortDirection = 'asc';
+    loading = true;
 
     /**
      * Constructor
@@ -90,6 +89,8 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: (response: PageResult<User>) => {
+                    console.log(response.content);
+
                     this.dataTable = [...response.content];
                     this.totalItems = response.totalElements;
                     this.pageIndex = response.page;
@@ -143,8 +144,6 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
     }
 
     sortListEvent(event: any): void {
-        const sortField = event.active;
-        const sortDirection = event.direction;
         this.getDataComponent();
     }
 
