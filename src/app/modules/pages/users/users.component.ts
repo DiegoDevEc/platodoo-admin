@@ -43,8 +43,8 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
 
 
     title: string = 'Usuarios';
-    columns = ['id', 'username', 'firstName', 'lastName', 'email', 'phone'];
-    displayedColumns = ['username', 'firstName', 'lastName', 'email', 'phone', 'actions'];
+    columns = ['id', 'roles', 'username', 'firstName', 'lastName', 'email', 'phone', 'status', 'platform'];
+    displayedColumns = ['username', 'firstName', 'lastName', 'email', 'phone', 'status', 'platform', 'actions'];
 
     // Encabezados legibles
     headers = {
@@ -52,7 +52,9 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
         firstName: 'Nombre',
         lastName: 'Apellido',
         email: 'Correo',
-        phone: 'Teléfono'
+        phone: 'Teléfono',
+        status: 'Estado',
+        platform: 'Plataforma'
     };
 
     dataTable: any[] = [];
@@ -73,6 +75,7 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
     ) { }
 
     getFormFields(row?: User): DynamicField[] {
+        console.log('Roles cargados:', row?.roles);
         return [
             { name: 'firstName', label: 'Nombre', type: 'text', value: row?.firstName },
             { name: 'lastName', label: 'Apellido', type: 'text', value: row?.lastName },
@@ -97,6 +100,19 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
                 asyncValidators: [
                     phoneValidator(this._apiServiceUser, row?.id ?? '', row?.phone)
                 ]
+            },
+            {
+                name: 'status',
+                label: 'Activo',
+                type: 'slide-toggle',
+                value: row?.status == undefined ? true : row?.status == 'ACT' ? true : false,
+            },
+            {
+                name: 'roles',
+                label: 'Roles',
+                type: 'checkbox-group',
+                options: ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_USER'],
+                value: row?.roles || [] // debe ser un array de strings
             }
         ];
     }
@@ -117,7 +133,6 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
                     this.pageIndex = response.page;
                     this.pageSize = response.size;
                     this.loading = false;
-                    console.log('Usuarios cargados:', this.dataTable);
 
                 },
                 error: () => {
@@ -128,12 +143,23 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
             });
     }
 
+    onCreate(user: User): void {
+        this._apiServiceUser.signUp(user).subscribe({
+            next: () => {
+                this._snackBar.open('Usuario creado', 'Cerrar', { duration: 3000 });
+                this.getDataComponent();
+            },
+            error: () => {
+                this._snackBar.open('Error al crear usuario', 'Cerrar', { duration: 3000 });
+            }
+        });
+    }
+
     // Acciones
     onUpdate(user: User): void {
-        console.log('Actualizar usuario:', user.id);
         this._apiServiceUser.updateUser(user.id, user).subscribe({
             next: () => {
-                this._snackBar.open('Usuario actualizado', 'Cerrar', { duration: 2000 });
+                this._snackBar.open('Usuario actualizado', 'Cerrar', { duration: 3000 });
                 this.getDataComponent();
             },
             error: () => {
@@ -144,9 +170,9 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
 
     onDelete(row: User): void {
         const confirmation = this._fuseConfirmationService.open({
-            title: 'Eliminar Usuario',
-            message: '¿Seguro que quieres eliminar este registro?',
-            actions: { confirm: { label: 'Eliminar' } },
+            title: 'Inhabilitar Usuario',
+            message: '¿Seguro que quieres Inhabilitar este registro?',
+            actions: { confirm: { label: 'Inhabilitar' } },
         });
 
         confirmation.afterClosed().subscribe((result) => {
@@ -154,11 +180,11 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
                 // Suponiendo que tienes un método deleteUser en tu servicio
                 this._apiServiceUser.deleteUser(row.id).subscribe({
                     next: () => {
-                        this._snackBar.open('Usuario eliminado', 'Cerrar', { duration: 2000 });
+                        this._snackBar.open('Usuario Inhabilitado', 'Cerrar', { duration: 3000 });
                         this.getDataComponent();
                     },
                     error: () => {
-                        this._snackBar.open('Error al eliminar usuario', 'Cerrar', { duration: 3000 });
+                        this._snackBar.open('Error al Inhabilitar usuario', 'Cerrar', { duration: 3000 });
                     }
                 });
             }

@@ -17,8 +17,6 @@ export class UserService {
     constructor(private http: HttpClient) { }
 
     getUsers(page: number, size: number, sortField: string, direction: string): Observable<PageResult<User>> {
-        console.log(`Fetching users with page: ${page}, size: ${size}, sort: ${sortField}, direction: ${direction}`);
-
         return this.http.get<PageResult<User>>(`${this.apiUrl}/users`, {
             params: {
                 page: page.toString(),
@@ -39,6 +37,12 @@ export class UserService {
 
     getUserById(userId: string): Observable<User> {
         return this.http.get<User>(`${this.apiUrl}/users/${userId}`);
+    }
+
+    signUp(user: User){
+        user.platform = environment.platform;
+        user.password = 'admin123.';
+        return this.http.post(`${this.apiUrl}/auth/sign-up`, user);
     }
 
     validateEmail(email: string, userId: string): Observable<boolean> {

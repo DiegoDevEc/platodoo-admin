@@ -15,6 +15,7 @@ export interface DynamicTableContext<T = any> {
 
   getDataComponent(): void;
   onUpdate(row: T): void;
+  onCreate(row: T): void;
   onDelete(row: T): void;
   filterEvent(value: string): void;
   pageEvent(event: any): void;

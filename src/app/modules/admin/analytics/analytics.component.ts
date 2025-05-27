@@ -91,8 +91,6 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
      */
     ngOnInit(): void {
 
-        this.getUsers();
-
         // Get the data
         this._analyticsService.data$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -697,69 +695,4 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
         };
     }
 
-    getUsers(): void {
-        this.loading = true;
-
-
-
-        this._apiServiceUser.getUsers(0, 5, 'username', '')
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe({
-                next: (response) => {
-                    this.dataTable = [...response.content];
-
-                    this.totalItems = response.totalElements;
-                    this.pageIndex = response.page;
-                    this.pageSize = response.size;
-                    this.loading = false;
-
-                },
-                error: () => {
-                    this.dataTable = [];
-                    this.loading = false;
-                }
-            });
-    }
-
-
-    // Acciones
-    editar(row: any): void {
-        console.log('Editar:', row);
-    }
-
-    delete(row: any): void {
-        // Open the confirmation dialog
-        const confirmation = this._fuseConfirmationService.open({
-            title: 'Eliminar Usuario',
-            message:
-                '¿Seguro que quieres eliminar este registro?',
-            actions: {
-                confirm: {
-                    label: 'Eliminar',
-                },
-            },
-        });
-
-        // Subscribe to the confirmation dialog closed action
-        confirmation.afterClosed().subscribe((result) => {
-            // If the confirm button pressed...
-            if (result === 'confirmed') {
-               console.log('Eliminar:', row);
-                // Call the delete method from the service
-                console.log(row.username);
-            }
-        });
-    }
-
-    filtrar(valor: string): void {
-        console.log('Filtro:', valor);
-    }
-
-    paginar(event: any): void {
-        console.log('Paginación:', event);
-    }
-
-    ordenar(event: any): void {
-        console.log('Ordenamiento:', event);
-    }
 }

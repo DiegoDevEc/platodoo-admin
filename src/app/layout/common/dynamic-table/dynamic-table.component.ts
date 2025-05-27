@@ -53,12 +53,12 @@ export class DynamicTableComponent {
 
     ngOnInit(): void {
         this.displayedColumns = [...this.context.columns];
-            this.displayedColumns.push('actions');
+        this.displayedColumns.push('actions');
         if (this.context.onUpdate || this.context.onDelete) {
         }
     }
 
-    openAddDialog(): void {
+    onCreate(): void {
         const dialogRef = this.dialog.open(DynamicAddDialogComponent, {
             width: '600px',
             maxWidth: '95vw',
@@ -74,6 +74,7 @@ export class DynamicTableComponent {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
+                this.context.onCreate(result);
                 this.context.getDataComponent();
             }
         });
@@ -86,6 +87,7 @@ export class DynamicTableComponent {
 
     onEdit(row: any): void {
         const idRow = row.id;
+
         const dialogRef = this.dialog.open(DynamicAddDialogComponent, {
             width: '600px',
             maxWidth: '95vw',
@@ -99,7 +101,9 @@ export class DynamicTableComponent {
             }
         });
         dialogRef.afterClosed().subscribe(result => {
+
             result.id = idRow;
+
             if (result) {
                 this.context.onUpdate(result);
                 this.context.getDataComponent();

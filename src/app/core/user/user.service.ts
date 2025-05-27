@@ -49,9 +49,6 @@ export class UserService {
      * Get the current signed-in user data
      */
     get(): Observable<User> {
-        console.log('Get user *****');
-        console.log('Get user *****', this._user);
-
         return this._httpClient.get<User>('api/common/user').pipe(
             tap((user) => {
                 this._user.next(user);

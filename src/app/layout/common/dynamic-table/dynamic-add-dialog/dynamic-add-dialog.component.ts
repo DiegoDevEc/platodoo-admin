@@ -13,6 +13,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DynamicField } from './dynamic-field';
 import { CommonModule } from '@angular/common';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
     selector: 'app-dynamic-add-dialog',
@@ -26,6 +28,8 @@ import { CommonModule } from '@angular/common';
         ReactiveFormsModule,
         MatButtonToggleModule,
         MatButtonModule,
+        MatSlideToggleModule,
+        MatCheckboxModule,
         MatSelectModule,
         MatOptionModule,
         MatChipsModule,
@@ -39,40 +43,46 @@ export class DynamicAddDialogComponent implements OnInit {
     constructor(
         private dialogRef: MatDialogRef<DynamicAddDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { title: string; fields: DynamicField[] }
-    ) {}
+    ) { }
 
-ngOnInit(): void {
+    ngOnInit(): void {
 
-    const group: { [key: string]: FormControl } = {};
+        const group: { [key: string]: FormControl } = {};
 
-    this.data.fields.forEach(field => {
-        const syncValidators = [];
-        const asyncValidators = [];
+        this.data.fields.forEach(field => {
+            const syncValidators = [];
+            const asyncValidators = [];
 
-        if (field.required) {
-            syncValidators.push(Validators.required);
-        }
+            if (field.required) {
+                syncValidators.push(Validators.required);
+            }
 
-        if (field.validators) {
-            syncValidators.push(...field.validators);
-        }
+            if (field.validators) {
+                syncValidators.push(...field.validators);
+            }
 
-        if (field.asyncValidators) {
-            asyncValidators.push(...field.asyncValidators);
-        }
+            if (field.asyncValidators) {
+                asyncValidators.push(...field.asyncValidators);
+            }
 
-        group[field.name] = new FormControl(
-            field.value || '',
-            syncValidators,
-            asyncValidators
-        );
-    });
+            group[field.name] = new FormControl(
+                field.value || '',
+                syncValidators,
+                asyncValidators
+            );
+        });
 
-    this.form = new FormGroup(group);
-}
+        this.form = new FormGroup(group);
+    }
 
     submit(): void {
         if (this.form.valid) {
+        const raw = this.form.value;
+
+        if (raw && 'status' in raw) {
+            raw.status = raw.status ? 'ACT' : 'INA';
+        }
+
             this.dialogRef.close(this.form.value);
         } else {
             this.form.markAllAsTouched();
@@ -81,5 +91,18 @@ ngOnInit(): void {
 
     cancel(): void {
         this.dialogRef.close();
+    }
+
+    onCheckboxGroupChange(fieldName: string, option: string, checked: boolean): void {
+        const control = this.form.get(fieldName);
+        if (!control) return;
+
+        const currentValue = control.value || [];
+
+        if (checked && !currentValue.includes(option)) {
+            control.setValue([...currentValue, option]);
+        } else if (!checked && currentValue.includes(option)) {
+            control.setValue(currentValue.filter((item: string) => item !== option));
+        }
     }
 }

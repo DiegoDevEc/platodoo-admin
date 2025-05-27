@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8081' ,
+  apiUrl: 'http://localhost:8080' ,
   platform: 'BACKOFFICE' // URL del backend
 };
