@@ -18,6 +18,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { UserService } from 'app/core/services/api/user.service';
 import { LocalStorageService } from 'app/core/services/local-storage.service';
 import { User } from 'app/core/user/user.types';
@@ -50,28 +52,30 @@ export class SettingsAccountComponent implements OnInit {
     /**
      * Constructor
      */
-constructor(
-    private _formBuilder: UntypedFormBuilder,
-    private _userService: UserService,
-    private _localStorageService: LocalStorageService
-) {
-    this.userId = this._localStorageService.getItem<User>('user')?.id;
-    this.accountForm = this._formBuilder.group({
-        firstName: [''],
-        lastName: [''],
-        username: [''],
-        email: [
-            '',
-            [Validators.email],
-            [emailValidator(this._userService, this.userId, this.originalEmail)]
-        ],
-        phone: [
-            '',
-            [Validators.required],
-            [phoneValidator(this._userService, this.userId, this.originalPhone)]
-        ]
-    });
-}
+    constructor(
+        private _formBuilder: UntypedFormBuilder,
+        private _userService: UserService,
+        private _localStorageService: LocalStorageService,
+        private _snackBar: MatSnackBar,
+        private _router: Router
+    ) {
+        this.userId = this._localStorageService.getItem<User>('user')?.id;
+        this.accountForm = this._formBuilder.group({
+            firstName: [''],
+            lastName: [''],
+            username: [''],
+            email: [
+                '',
+                [Validators.email],
+                [emailValidator(this._userService, this.userId, this.originalEmail)]
+            ],
+            phone: [
+                '',
+                [Validators.required],
+                [phoneValidator(this._userService, this.userId, this.originalPhone)]
+            ]
+        });
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -80,23 +84,23 @@ constructor(
     /**
      * On init
      */
-ngOnInit(): void {
-    this._userService.getUserById(this.userId).subscribe((user) => {
-        this.originalEmail = user.email;
-        this.originalPhone = user.phone;
-        this.accountForm.patchValue({
-            firstName: user.firstName,
-            lastName: user.lastName,
-            username: user.username,
-            email: user.email,
-            phone: user.phone
+    ngOnInit(): void {
+        this._userService.getUserById(this.userId).subscribe((user) => {
+            this.originalEmail = user.email;
+            this.originalPhone = user.phone;
+            this.accountForm.patchValue({
+                firstName: user.firstName,
+                lastName: user.lastName,
+                username: user.username,
+                email: user.email,
+                phone: user.phone
+            });
+            this.accountForm.get('email')?.updateValueAndValidity();
+            this.accountForm.get('phone')?.updateValueAndValidity();
+        }, (error) => {
+            console.error('Error fetching user data:', error);
         });
-        this.accountForm.get('email')?.updateValueAndValidity();
-        this.accountForm.get('phone')?.updateValueAndValidity();
-    }, (error) => {
-        console.error('Error fetching user data:', error);
-    });
-}
+    }
 
     updateAccount(): void {
         if (this.accountForm.valid) {
@@ -109,50 +113,22 @@ ngOnInit(): void {
             this._userService.updateUser(this.userId, updatedUser).subscribe(
                 (response) => {
                     console.log('User updated successfully:', response);
-                    // Optionally, you can show a success message or redirect the user
+                    this._snackBar.open('Usuario actualizado', 'Cerrar', { duration: 3000 });
                 },
                 (error) => {
                     console.error('Error updating user:', error);
-                    // Optionally, you can show an error message
+                    this._snackBar.open('Error al actualizar el usuario', 'Cerrar', { duration: 3000 });
                 }
             );
         } else {
             console.log('Account form is invalid. Please check the fields.');
+            this._snackBar.open('Error por favor revise los campos', 'Cerrar', { duration: 3000 });
         }
     }
 
- /*   emailValidator(): AsyncValidatorFn {
-        return (control: AbstractControl): Observable<ValidationErrors | null> => {
-            // No validar si no cambió
-            if (!control.dirty || control.value === this.originalEmail) {
-                return of(null);
-            }
 
-            return timer(500).pipe(
-                switchMap(() =>
-                    this._userService.validateEmail(control.value, this.userId).pipe(
-                        map(isAvailable => (isAvailable ? null : { emailTaken: true }))
-                    )
-                )
-            );
-        };
+    cancel(){
+        this._router.navigate(['/dashboard']);
     }
-
-    phoneValidator(): AsyncValidatorFn {
-        return (control: AbstractControl): Observable<ValidationErrors | null> => {
-            // No validar si no cambió
-            if (!control.dirty || control.value === this.originalPhone) {
-                return of(null);
-            }
-
-            return timer(500).pipe(
-                switchMap(() =>
-                    this._userService.validatePhone(control.value, this.userId).pipe(
-                        map(isAvailable => (isAvailable ? null : { phoneTaken: true }))
-                    )
-                )
-            );
-        };
-    }*/
 
 }

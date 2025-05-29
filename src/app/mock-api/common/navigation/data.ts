@@ -28,15 +28,8 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: 'heroicons_outline:document',
         children: [
             {
-                id: 'pages.profile',
-                title: 'Profile',
-                type: 'basic',
-                icon: 'heroicons_outline:user-circle',
-                link: '/pages/profile',
-            },
-            {
                 id: 'pages.settings',
-                title: 'Settings',
+                title: 'Configuraciones',
                 type: 'basic',
                 icon: 'heroicons_outline:cog-8-tooth',
                 link: '/pages/settings',
@@ -71,15 +64,8 @@ export const compactNavigation: FuseNavigationItem[] = [
         icon: 'heroicons_outline:document',
         children: [
             {
-                id: 'pages.profile',
-                title: 'Profile',
-                type: 'basic',
-                icon: 'heroicons_outline:user-circle',
-                link: '/pages/profile',
-            },
-            {
                 id: 'pages.settings',
-                title: 'Settings',
+                title: 'Configuraciones',
                 type: 'basic',
                 icon: 'heroicons_outline:cog-8-tooth',
                 link: '/pages/settings',
@@ -114,15 +100,8 @@ export const futuristicNavigation: FuseNavigationItem[] = [
         icon: 'heroicons_outline:document',
         children: [
             {
-                id: 'pages.profile',
-                title: 'Profile',
-                type: 'basic',
-                icon: 'heroicons_outline:user-circle',
-                link: '/pages/profile',
-            },
-            {
                 id: 'pages.settings',
-                title: 'Settings',
+                title: 'Configuraciones',
                 type: 'basic',
                 icon: 'heroicons_outline:cog-8-tooth',
                 link: '/pages/settings',
@@ -157,15 +136,8 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         icon: 'heroicons_outline:document',
         children: [
             {
-                id: 'pages.profile',
-                title: 'Profile',
-                type: 'basic',
-                icon: 'heroicons_outline:user-circle',
-                link: '/pages/profile',
-            },
-            {
                 id: 'pages.settings',
-                title: 'Settings',
+                title: 'Configuraciones',
                 type: 'basic',
                 icon: 'heroicons_outline:cog-8-tooth',
                 link: '/pages/settings',

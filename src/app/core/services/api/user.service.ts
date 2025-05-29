@@ -1,3 +1,4 @@
+import { UserPasswordUpdateRequest } from './../interface/user-password-update-request';
 import { Platform } from '@angular/cdk/platform';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -30,6 +31,10 @@ export class UserService {
 
     updateUser(userId: string, user: User): Observable<User> {
         return this.http.put<User>(`${this.apiUrl}/users/${userId}`, user);
+    }
+
+    updateUserSecuritySettings(userPasswordUpdateRequest: UserPasswordUpdateRequest): Observable<Boolean> {
+        return this.http.patch<Boolean>(`${this.apiUrl}/users/update-password`, userPasswordUpdateRequest);
     }
 
     deleteUser(userId: string): Observable<User> {
