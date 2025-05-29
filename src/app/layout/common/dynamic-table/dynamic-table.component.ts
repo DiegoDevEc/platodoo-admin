@@ -7,8 +7,7 @@ import {
     ViewChild,
     ContentChild,
     TemplateRef,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef
+    ChangeDetectionStrategy
 } from '@angular/core';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -21,6 +20,7 @@ import { CustomMatPaginatorIntl } from './custom-paginator-intl';
 import { MatDialog } from '@angular/material/dialog';
 import { DynamicAddDialogComponent } from './dynamic-add-dialog/dynamic-add-dialog.component';
 import { DynamicTableContext } from './dynamic-table-context';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-dynamic-table',
@@ -36,6 +36,7 @@ import { DynamicTableContext } from './dynamic-table-context';
         MatFormFieldModule,
         MatTableModule,
         MatInputModule,
+        FormsModule
     ],
     providers: [{ provide: MatPaginatorIntl, useClass: CustomMatPaginatorIntl }],
     standalone: true,
@@ -48,23 +49,24 @@ export class DynamicTableComponent {
     @ContentChild('cellTemplate') cellTemplate!: TemplateRef<any>;
 
     displayedColumns: string[] = [];
+    private lastFilterValue: string = '';
 
-    constructor(private cdr: ChangeDetectorRef, private dialog: MatDialog) { }
+    constructor(private dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.displayedColumns = [...this.context.columns];
         this.displayedColumns.push('actions');
-        if (this.context.onUpdate || this.context.onDelete) {
-        }
+
+
     }
 
     onCreate(): void {
         const dialogRef = this.dialog.open(DynamicAddDialogComponent, {
-            width: '600px',
+            width: '650px',
             maxWidth: '95vw',
             height: 'auto',
             maxHeight: '95vh',
-            autoFocus: false,
+            autoFocus: true,
             panelClass: 'custom-dialog-container',
             data: {
                 title: `Crear ${this.context.title}`,
@@ -80,9 +82,23 @@ export class DynamicTableComponent {
         });
     }
 
-    onFilter(event: Event): void {
-        const value = (event.target as HTMLInputElement).value;
-        this.context.filterEvent(value);
+    onFilter(): void {
+        const currentValue = (this.context.searchField ?? '').trim();
+        const lastApplied = this.context.searchFieldLastApplied ?? '';
+
+        const hasChanged = currentValue !== lastApplied;
+
+        if (hasChanged || (currentValue === '' && lastApplied !== '')) {
+            this.context.searchField = currentValue;
+            this.context.searchFieldLastApplied = currentValue;
+            this.context.filterEvent(currentValue);
+        }
+    }
+
+
+    clearFilter(): void {
+        this.context.searchField = '';
+        this.onFilter();
     }
 
     onEdit(row: any): void {
@@ -115,8 +131,20 @@ export class DynamicTableComponent {
         this.context.onDelete(row);
     }
 
-    onPageChange(event: any): void {
+    pageEvent(event: any): void {
+        this.context.pageSize = event.pageSize;
+        this.context.pageIndex = event.pageIndex;
         this.context.pageEvent(event);
+
+        if (this.paginator) {
+            if (this.paginator.pageSize !== event.pageSize) {
+                this.paginator.pageSize = event.pageSize;
+            }
+
+            if (this.paginator.pageIndex !== event.pageIndex) {
+                this.paginator.pageIndex = event.pageIndex;
+            }
+        }
     }
 
     toggleSort(field: string): void {
@@ -130,3 +158,5 @@ export class DynamicTableComponent {
         this.context.sortListEvent({ active: this.context.sortField, direction: this.context.sortDirection });
     }
 }
+
+

@@ -20,8 +20,12 @@ import { DynamicTableContext } from 'app/layout/common/dynamic-table/dynamic-tab
 import { DynamicField } from 'app/layout/common/dynamic-table/dynamic-add-dialog/dynamic-field';
 import { emailValidator, phoneValidator } from 'app/core/validators/user-validators';
 import { Validators } from '@angular/forms';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
+import { USER_COLUMNS, USER_DEFAULT_DATA_TABLE, USER_DEFAULT_LOADING, USER_DEFAULT_PAGE_INDEX, USER_DEFAULT_PAGE_SIZE, USER_DEFAULT_SORT_DIRECTION, USER_DEFAULT_SORT_FIELD, USER_DEFAULT_TITLE, USER_DEFAULT_TOTAL_ITEMS, USER_DISPLAYED_COLUMNS, USER_HEADERS, USER_SEARCH_FIELD, USERS_ROLES } from 'app/core/settings/user-columns.config';
 
 @Component({
+    standalone: true,
     selector: 'app-users',
     imports: [
         CommonModule,
@@ -42,28 +46,21 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
 
-    title: string = 'Usuarios';
-    columns = ['id', 'roles', 'username', 'firstName', 'lastName', 'email', 'phone', 'status', 'platform'];
-    displayedColumns = ['username', 'firstName', 'lastName', 'email', 'phone', 'status', 'platform', 'actions'];
+    title: string = USER_DEFAULT_TITLE;
+    columns = USER_COLUMNS;
+    displayedColumns = USER_DISPLAYED_COLUMNS;
 
     // Encabezados legibles
-    headers = {
-        username: 'Usuario',
-        firstName: 'Nombre',
-        lastName: 'Apellido',
-        email: 'Correo',
-        phone: 'Teléfono',
-        status: 'Estado',
-        platform: 'Plataforma'
-    };
+    headers = USER_HEADERS;
 
-    dataTable: any[] = [];
-    totalItems = 0;
-    pageIndex = 0;
-    pageSize = 5;
-    sortField = 'username';
-    sortDirection = 'asc';
-    loading = true;
+    dataTable: any[] = USER_DEFAULT_DATA_TABLE;
+    totalItems = USER_DEFAULT_TOTAL_ITEMS;
+    pageIndex = USER_DEFAULT_PAGE_INDEX;
+    pageSize = USER_DEFAULT_PAGE_SIZE;
+    sortField = USER_DEFAULT_SORT_FIELD;
+    searchField = USER_SEARCH_FIELD;
+    sortDirection = USER_DEFAULT_SORT_DIRECTION;
+    loading = USER_DEFAULT_LOADING;
 
     /**
      * Constructor
@@ -75,7 +72,6 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
     ) { }
 
     getFormFields(row?: User): DynamicField[] {
-        console.log('Roles cargados:', row?.roles);
         return [
             { name: 'firstName', label: 'Nombre', type: 'text', value: row?.firstName },
             { name: 'lastName', label: 'Apellido', type: 'text', value: row?.lastName },
@@ -111,8 +107,8 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
                 name: 'roles',
                 label: 'Roles',
                 type: 'checkbox-group',
-                options: ['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_USER'],
-                value: row?.roles || [] // debe ser un array de strings
+                options: USERS_ROLES,
+                value: row?.roles || []
             }
         ];
     }
@@ -124,7 +120,7 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
     getDataComponent(): void {
         this.loading = true;
 
-        this._apiServiceUser.getUsers(this.pageIndex, this.pageSize, this.sortField, this.sortDirection)
+        this._apiServiceUser.getUsers(this.pageIndex, this.pageSize, this.sortField, this.sortDirection, this.searchField)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: (response: PageResult<User>) => {
@@ -193,15 +189,19 @@ export class UsersComponent implements OnInit, OnDestroy, DynamicTableContext<Us
 
     filterEvent(valor: string): void {
         console.log('Filtro:', valor);
+        this.searchField = valor;
+        this.getDataComponent();
     }
 
-    pageEvent(event: any): void {
+    pageEvent(event: PageEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.getDataComponent();
     }
 
-    sortListEvent(event: any): void {
+    sortListEvent(event: Sort): void {
+        this.sortField = event.active;
+        this.sortDirection = event.direction;
         this.getDataComponent();
     }
 

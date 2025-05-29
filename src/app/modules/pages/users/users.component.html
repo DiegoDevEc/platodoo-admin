@@ -15,20 +15,10 @@
 
         <div class="mt-8 w-full">
             @if (!loading) {
-            @if (dataTable.length > 0) {
-                <app-dynamic-table [context]="this"></app-dynamic-table>
-            } @else {
-            <div class="flex justify-center items-center h-48 text-center text-lg text-gray-500">
-                No hay registros para mostrar.
-            </div>
-            }
-
+            <app-dynamic-table [context]="this"></app-dynamic-table>
             } @else{
-
             <app-full-screen-loading *ngIf="loading" message="Cargando...">
             </app-full-screen-loading>
-
-
             }
         </div>
 

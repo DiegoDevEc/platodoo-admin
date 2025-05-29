@@ -13,8 +13,14 @@
         <!-- Buscador -->
         <mat-form-field appearance="outline" class="w-full sm:w-64">
             <mat-label>Buscar</mat-label>
-            <input matInput (input)="onFilter($event)" placeholder="Buscar..." />
+            <input matInput [(ngModel)]="context.searchField" (keyup.enter)="onFilter()" (blur)="onFilter()"
+                placeholder="Buscar..." />
+            <button *ngIf="context.searchField?.length" matSuffix mat-icon-button aria-label="Limpiar"
+                (click)="clearFilter()">
+                <mat-icon>close</mat-icon>
+            </button>
         </mat-form-field>
+
     </div>
 
     <!-- Loading -->
@@ -75,10 +81,10 @@
                 <tr mat-row *matRowDef="let row; columns: context.displayedColumns"></tr>
             </table>
         </div>
-
-        <mat-paginator [length]="totalItems" [pageIndex]="pageIndex" [pageSize]="pageSize"
-            [pageSizeOptions]="[5, 10, 25, 100]" (page)="onPageChange($event)" showFirstLastButtons>
+        <mat-paginator [length]="context.totalItems" [pageIndex]="context.pageIndex" [pageSize]="context.pageSize"
+            [pageSizeOptions]="[5, 10, 25, 100]" (page)="pageEvent($event)" showFirstLastButtons>
         </mat-paginator>
+
     </ng-container>
 
     <!-- Sin datos -->

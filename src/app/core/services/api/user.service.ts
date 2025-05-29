@@ -16,13 +16,14 @@ export class UserService {
 
     constructor(private http: HttpClient) { }
 
-    getUsers(page: number, size: number, sortField: string, direction: string): Observable<PageResult<User>> {
+    getUsers(page: number, size: number, sortField: string, direction: string, search: string): Observable<PageResult<User>> {
         return this.http.get<PageResult<User>>(`${this.apiUrl}/users`, {
             params: {
                 page: page.toString(),
                 size: size.toString(),
                 sortField,
-                direction
+                direction,
+                search
             }
         });
     }
