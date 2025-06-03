@@ -17,6 +17,11 @@ import { provideIcons } from 'app/core/icons/icons.provider';
 import { MockApiService } from 'app/mock-api';
 import { firstValueFrom } from 'rxjs';
 import { TranslocoHttpLoader } from './core/transloco/transloco.http-loader';
+import {
+    GoogleLoginProvider,
+    SocialAuthServiceConfig
+} from '@abacritt/angularx-social-login';
+import { environment } from 'environments/environment';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -26,6 +31,22 @@ export const appConfig: ApplicationConfig = {
             appRoutes,
             withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })
         ),
+
+        {
+            provide: 'SocialAuthServiceConfig',
+            useValue: {
+                autoLogin: false,
+                providers: [
+                    {
+                        id: GoogleLoginProvider.PROVIDER_ID,
+                        provider: new GoogleLoginProvider(environment.googleClientId, {
+                            oneTapEnabled: false,
+                            prompt: 'select_account'
+                        })
+                    }
+                ]
+            } as SocialAuthServiceConfig
+        },
 
         // Material Date Adapter
         {
