@@ -6,23 +6,24 @@ on:
       - main
 
 jobs:
-  trigger-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Verificar repositorio
+      - name: 📦 Checkout repositorio
         uses: actions/checkout@v3
 
-      - name: Verificar token de Coolify (oculto)
+      - name: 🔧 Reemplazar Google OAuth en environment.prod.ts
         run: |
-          if [ -z "${{ secrets.COOLIFY_DEPLOY_TOKEN }}" ]; then
-            echo "❌ Token no definido en los secrets del repositorio (COOLIFY_DEPLOY_TOKEN)"
-            exit 1
-          else
-            echo "✅ Token definido correctamente"
-          fi
+          sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" src/environments/environment.prod.ts
+          sed -i "s|GOOGLE_CLIENT_SECRET_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_SECRET }}|g" src/environments/environment.prod.ts
 
-      - name: Hacer despliegue vía Coolify
+      - name: ⚙️ Instalar dependencias y compilar
+        run: |
+          npm ci
+          npm run build -- --configuration=production
+
+      - name: 🚀 Desplegar vía Coolify
         run: |
           echo "⏳ Ejecutando curl a Coolify..."
 
