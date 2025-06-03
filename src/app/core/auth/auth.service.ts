@@ -4,6 +4,8 @@ import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
 import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
+import { SocialLogin } from '../services/interface/social-login';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,6 +13,7 @@ export class AuthService {
     private _httpClient = inject(HttpClient);
     private _userService = inject(UserService);
     private _apiUrl = environment.apiUrl; // ✅ Usa la URL del environment
+    private _authServiceSocial = inject(SocialAuthService);
 
     set accessToken(token: string) {
         localStorage.setItem('accessToken', token);
@@ -64,6 +67,9 @@ export class AuthService {
 
     signOut(): Observable<any> {
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        localStorage.clear();
+        this._authServiceSocial.signOut(true);
         this._authenticated = false;
         return of(true);
     }
@@ -80,5 +86,17 @@ export class AuthService {
         if (this._authenticated) return of(true);
         if (!this.accessToken || AuthUtils.isTokenExpired(this.accessToken)) return of(false);
         return this.signInUsingToken();
+    }
+
+    signUpSocial(socialLogin: SocialLogin): Observable<any> {
+        socialLogin.platform = environment.platform;
+        return this._httpClient.post(`${this._apiUrl}/api/auth/social/social-login`, socialLogin).pipe(
+            switchMap((response: any) => {
+                this.accessToken = response.accessToken;
+                this._authenticated = true;
+                this._userService.user = response.user;
+                return of(response);
+            })
+        );
     }
 }

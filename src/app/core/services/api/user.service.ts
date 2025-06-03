@@ -1,5 +1,4 @@
 import { UserPasswordUpdateRequest } from './../interface/user-password-update-request';
-import { Platform } from '@angular/cdk/platform';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
