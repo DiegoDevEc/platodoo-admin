@@ -39,7 +39,7 @@ export const appConfig: ApplicationConfig = {
                 providers: [
                     {
                         id: GoogleLoginProvider.PROVIDER_ID,
-                        provider: new GoogleLoginProvider(environment.googleClientId, {
+                        provider: new GoogleLoginProvider(environment.gClientId, {
                             oneTapEnabled: false,
                             prompt: 'select_account'
                         })
