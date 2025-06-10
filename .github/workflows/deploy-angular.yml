@@ -1,4 +1,4 @@
-name: Deploy Angular Frontend via Coolify API (Docker Build)
+name: Build & Deploy Angular App to GHCR and Coolify
 
 on:
   push:
@@ -6,43 +6,32 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: 📦 Checkout repositorio
         uses: actions/checkout@v3
 
-      - name: 🔧 Reemplazar Google OAuth en environment.prod.ts
+      - name: 🔧 Inyectar GOOGLE_CLIENT_ID en environment.prod.ts
         run: |
-          sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|${{ secrets.GOOGLE_CLIENT_ID }}|g" src/environments/environment.prod.ts
+          sed -i "s|GOOGLE_CLIENT_ID_PLACEHOLDER|\"${{ secrets.GOOGLE_CLIENT_ID }}\"|g" src/environments/environment.prod.ts
 
-      - name: 🔍 Verificar contenido de environment.prod.ts
-        run: |
-          echo "📄 Verificando si se inyectó el GOOGLE_CLIENT_ID..."
-          cat src/environments/environment.prod.ts
-          echo "✅ Fin del contenido del archivo."
-
-      - name: ⚙️ Instalar dependencias y compilar
+      - name: ⚙️ Instalar dependencias y compilar Angular
         run: |
           npm ci
           npm run build -- --configuration=production
 
-      - name: 🚀 Desplegar vía Coolify
+      - name: 🔐 Login en GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+      - name: 🐳 Build y push de imagen a GHCR
         run: |
-          echo "⏳ Ejecutando curl a Coolify..."
+          IMAGE=ghcr.io/${{ secrets.GHCR_USERNAME }}/playtodoo-admin:latest
+          docker build -t $IMAGE .
+          docker push $IMAGE
 
-          RESPONSE=$(curl -s -w "%{http_code}" -o coolify-response.log \
-            -X POST "http://31.97.12.29:8000/api/v1/deploy?uuid=nc4kw8ks44gk4kswgoww8gk0&force=false" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}" )
-
-          echo "📄 Respuesta HTTP: $RESPONSE"
-          echo "📦 Contenido de respuesta:"
-          cat coolify-response.log
-
-          if [ "$RESPONSE" -ne 200 ] && [ "$RESPONSE" -ne 202 ]; then
-            echo "❌ Error: Coolify devolvió código HTTP $RESPONSE"
-            exit 1
-          fi
-
-          echo "✅ Despliegue disparado correctamente desde GitHub Actions."
+      - name: 🚀 Notificar a Coolify para redeploy
+        run: |
+          curl -X POST "https://backoffice.playtodoo.com/api/v1/deploy?uuid=nc4kw8ks44gk4kswgoww8gk0&force=true" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}"
