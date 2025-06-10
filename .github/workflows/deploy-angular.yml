@@ -27,7 +27,8 @@ jobs:
 
       - name: 🐳 Build y push de imagen a GHCR
         run: |
-          IMAGE=ghcr.io/${{ secrets.GHCR_USERNAME }}/playtodoo-admin:latest
+          USERNAME_LOWER=$(echo "${{ secrets.GHCR_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE=ghcr.io/$USERNAME_LOWER/playtodoo-admin:latest
           docker build -t $IMAGE .
           docker push $IMAGE
 
