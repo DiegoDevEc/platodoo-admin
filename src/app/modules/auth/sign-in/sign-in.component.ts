@@ -1,4 +1,3 @@
-import { user } from './../../../mock-api/common/user/data';
 import { SocialLogin } from './../../../core/services/interface/social-login';
 import { Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import {
@@ -21,6 +20,7 @@ import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { Subject, takeUntil } from 'rxjs';
+import { environment } from 'environments/environment';
 
 @Component({
     selector: 'auth-sign-in',
@@ -77,6 +77,7 @@ export class AuthSignInComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+        console.log('✅ Google Client ID cargado:', environment.gClientId);
 
         this.authSocialService.authState
             .pipe(takeUntil(this._destroy$))
