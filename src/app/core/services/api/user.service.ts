@@ -46,6 +46,7 @@ export class UserService {
 
     signUp(user: User){
         user.platform = environment.platform;
+        user.provider = environment.platform;
         user.password = 'admin123.';
         return this.http.post(`${this.apiUrl}/auth/sign-up`, user);
     }

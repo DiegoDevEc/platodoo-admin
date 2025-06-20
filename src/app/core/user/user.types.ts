@@ -10,4 +10,5 @@ export interface User {
     platform?: string;
     password?:string;
     roles?: string[];
+    provider?:string;
 }

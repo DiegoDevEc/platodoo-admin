@@ -89,18 +89,19 @@
                 </div>
 
                 <!-- Single sign-on buttons -->
-                <div class="mt-8 flex items-center space-x-4">
-                    <!-- En tu sign-in.component.html -->
-                    <asl-google-signin-button type="standard" size="medium"></asl-google-signin-button>
+                <div class="mt-8 flex flex-col items-center space-y-4">
 
-                    <button class="flex-auto" type="button" mat-stroked-button>
+                    <asl-google-signin-button type="standard" text="continue_with" shape="pill" width="200"
+                        size="large"></asl-google-signin-button>
+
+                    <button class="w-[200px] flex items-center justify-center gap-2" type="button" mat-stroked-button>
                         <mat-icon class="icon-size-5" [svgIcon]="'feather:facebook'"></mat-icon>
+                        Continuar con Facebook
                     </button>
-                    <button class="flex-auto" type="button" mat-stroked-button>
+
+                    <button class="w-[200px] flex items-center justify-center gap-2" type="button" mat-stroked-button>
                         <mat-icon class="icon-size-5" [svgIcon]="'feather:twitter'"></mat-icon>
-                    </button>
-                    <button class="flex-auto" type="button" mat-stroked-button>
-                        <mat-icon class="icon-size-5" [svgIcon]="'feather:github'"></mat-icon>
+                        Continuar con Twitter
                     </button>
                 </div>
             </form>
